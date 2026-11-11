@@ -1,0 +1,36 @@
+services:
+  app:
+    build: .
+    image: vulcapos:latest
+    container_name: vulcapos-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:3010"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3010
+      WEB_DIST: /app/apps/web/dist
+      DATABASE_URL: postgresql://${POSTGRES_USER:-vulcapos}:${POSTGRES_PASSWORD:-vulcapos}@postgres:5432/${POSTGRES_DB:-vulcapos}
+      JWT_SECRET: ${JWT_SECRET:-cambie-esta-clave-larga}
+      BACKUP_DIR: /data/backups
+      TZ: America/Managua
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - backups:/data/backups
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3010/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 25s
+
+volumes:
+  backups:

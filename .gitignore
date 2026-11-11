@@ -1,0 +1,10 @@
+node_modules
+dist
+.env
+apps/api/.env
+apps/web/dist
+apps/api/dist
+release
+backups
+*.tsbuildinfo
+.DS_Store

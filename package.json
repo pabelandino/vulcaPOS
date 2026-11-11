@@ -1,0 +1,24 @@
+{
+  "name": "vulcapos",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/api",
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,magenta \"npm run dev -w api\" \"npm run dev -w web\"",
+    "dev:api": "npm run dev -w api",
+    "dev:web": "npm run dev -w web",
+    "build": "npm run build -w api && npm run build -w web",
+    "db:push": "prisma db push --schema apps/api/prisma/schema.prisma",
+    "db:generate": "prisma generate --schema apps/api/prisma/schema.prisma",
+    "start:prod": "node apps/api/dist/main.js",
+    "docker:demo": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build",
+    "package:release": "bash scripts/package-release.sh"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "prisma": "^6.16.2"
+  }
+}

@@ -1,0 +1,44 @@
+name: vulcapos
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vulcapos-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-vulcapos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vulcapos}
+      POSTGRES_DB: ${POSTGRES_DB:-vulcapos}
+      TZ: America/Managua
+      PGTZ: America/Managua
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vulcapos} -d ${POSTGRES_DB:-vulcapos}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    image: vulcapos:latest
+    container_name: vulcapos-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:3010"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3010
+      WEB_DIST: /app/apps/web/dist
+      DATABASE_URL: postgresql://${POSTGRES_USER:-vulcapos}:${POSTGRES_PASSWORD:-vulcapos}@postgres:5432/${POSTGRES_DB:-vulcapos}
+      JWT_SECRET: ${JWT_SECRET:-cambie-esta-clave-larga}
+      BACKUP_DIR: /data/backups
+      TZ: America/Managua
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - backups:/data/backups
+
+volumes:
+  postgres-data:
+  backups:

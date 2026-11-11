@@ -1,0 +1,11 @@
+node_modules
+**/node_modules
+**/dist
+.git
+release
+backups
+.env
+**/.env
+**/.DS_Store
+graphify-out
+*.md

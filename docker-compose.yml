@@ -1,0 +1,25 @@
+name: vulcapos
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vulcapos-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-vulcapos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vulcapos}
+      POSTGRES_DB: ${POSTGRES_DB:-vulcapos}
+      TZ: America/Managua
+      PGTZ: America/Managua
+    ports:
+      - "${POSTGRES_PORT:-5438}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vulcapos} -d ${POSTGRES_DB:-vulcapos}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  postgres-data:
